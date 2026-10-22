@@ -30,3 +30,13 @@ Für die gemeinsame Nutzung auf Handy und PC sind ein erreichbarer Server, HTTPS
 ## Prüfungen
 
 `npm test` testet CRUD, Foto-Speicherung, Statusverlauf, Eingabevalidierung, Schutz vor fremden Origins und Datenpersistenz nach Neustart in einer eigenen temporären Datenbank. Der Test verändert keine Nutzerdaten. Zusätzlich beim Aufbau in Chromium geprüft: Foto-Upload, Anlegen, Bearbeiten, Neuladen, Kennzahlen, Suche, JSON-Download und Löschen sowie Desktop und 390-Pixel-Mobilansicht.
+
+## Version 2 – Gebietsakquise und iPhone-Modus
+
+CRM-Layout mit Reitern für Objekt, Kontakte, Besuche & Aktivitäten und Aufgaben & Notizen. Besuchsstatus mit Datum, datierte Aktivitäten und Kartenmarkierungen für erfasste Objekte. OpenStreetMap/Leaflet ohne API-Schlüssel, manuelle Adresssuche über Nominatim und Google-Maps-Link pro Standort. Nur erfasste Objekte werden markiert; keine vollständige Gebäudedatenbank.
+
+Die frühere Angabe „kein Offlinebetrieb“ gilt weiterhin für den Mac-Servermodus. Neu: `phone.html` ist ein unabhängiger Geräte-Modus mit IndexedDB und Service Worker; App und Objekte sind nach erfolgreichem Laden offline nutzbar, Kartendienste nicht. JSON-Import ermöglicht den manuellen Transfer; keine automatische Synchronisierung. Der iPhone-Modus benötigt nach seiner Veröffentlichung keinen laufenden Mac und keine Anmeldung. Die Daten werden dort nur auf dem Gerät gespeichert und müssen regelmäßig exportiert werden. Ausführliche Einrichtung: [IPHONE.md](IPHONE.md). GitHub-Pages-Workflow vorbereitet, Veröffentlichung muss unter Settings → Pages aktiviert und erfolgreich ausgeführt werden; bisher keine produktive Veröffentlichung bestätigt.
+
+**Akquise.app** ergänzt den Start des Mac-Servers per Doppelklick ohne Terminaleingaben. Voraussetzung Node.js 24+, keine Apple-Signatur; Start auf macOS noch nicht praktisch getestet. Siehe [MAC-UND-IPHONE.md](MAC-UND-IPHONE.md).
+
+Die Cloud-Funktionsprüfung für Version 2 umfasst Aktivitäten-/Besuchspersistenz, Kartenmarker und Filter, Anlage per Kartenklick, 390-Pixel-Ansicht sowie einen Offline-Neustart des Gerätemodus in Chromium. Kartenkacheln und öffentliche Adresssuche waren in der Cloud durch den Netzwerkproxy (HTTP 403) blockiert; die erforderlichen Domains wurden als Konfigurationsentwurf gespeichert. Keine erfolgreiche Live-Karten-/Geocoding-Prüfung behauptet.

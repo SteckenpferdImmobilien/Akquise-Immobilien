@@ -22,3 +22,11 @@ Diese Variante hat keine Anmeldung. Andere Geräte im selben Netzwerk könnten d
 - Prüfen, ob Mac und iPhone im selben WLAN sind und der Mac nicht schläft.
 - Unter Systemeinstellungen > Netzwerk > Firewall prüfen, ob Node.js eingehende Verbindungen erlaubt.
 - Ist Port 3000 schon belegt, die bereits gestartete App schließen und erneut starten.
+
+## Neue Version: ohne Terminaleingaben starten
+
+Im entpackten Projektordner liegt jetzt **Akquise.app**. Die Anwendung per Doppelklick starten; sie startet den lokalen Server im Hintergrund und öffnet den Browser. Node.js 24+ bleibt einmalig erforderlich. Die App nicht einzeln aus dem Projektordner verschieben, da sie die danebenliegenden Programmdateien benötigt. Sie ist nicht von Apple signiert/notarisiert; macOS kann einmalig eine Freigabe unter Datenschutz & Sicherheit verlangen. Der Start auf echtem macOS muss noch geprüft werden.
+
+Bei neuen Installationen liegen die Daten unter `~/Library/Application Support/Akquise/data`; wenn im Projektordner bereits eine Datenbank unter `data/` vorhanden ist, wird diese weiterverwendet. Nicht zwei lokale Instanzen gleichzeitig starten. Der Hintergrundprozess endet beim Abmelden/Neustart; dann Akquise.app erneut öffnen. Das Hintergrundprotokoll liegt unter `~/Library/Application Support/Akquise/server.log`.
+
+**Für die Nutzung unterwegs ohne Mac siehe [IPHONE.md](IPHONE.md).** Diese Geräteversion arbeitet unabhängig vom lokalen Server; JSON-Sicherung und Import dienen zum manuellen Datentransfer.

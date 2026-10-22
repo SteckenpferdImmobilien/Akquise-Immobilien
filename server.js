@@ -13,11 +13,22 @@ const statuses = ['Neu','Kontaktiert','Termin vereinbart','In Verhandlung','Gewo
 const types = ['Wohnung','Einfamilienhaus','Mehrfamilienhaus','Grundstück','Gewerbe','Sonstiges'];
 function validate(input) {
  const p = {};
- for (const key of ['title','address','owner','phone','email','url','notes','nextAction','dueDate','status','type','price','image']) {
+ for (const key of ['title','address','owner','phone','email','url','notes','nextAction','dueDate','status','type','price','image','visitStatus','visitDate','lat','lng']) {
   if (input[key] !== undefined && typeof input[key] !== 'string') throw Error('Ungültiges Feld: ' + key);
   p[key] = (input[key] || '').trim();
   if (key !== 'image' && p[key].length > (key === 'notes' ? 20000 : 1000)) throw Error('Eingabe zu lang');
  }
+ p.visitStatus ||= 'Nicht besucht';
+ if (!['Nicht besucht','Niemand angetroffen','Besucht','Erneut besuchen'].includes(p.visitStatus)) throw Error('Ungültiger Besuchsstatus');
+ if ((p.lat === '') !== (p.lng === '')) throw Error('Bitte beide Koordinaten angeben.');
+ if(p.lat && (!Number.isFinite(Number(p.lat)) || !Number.isFinite(Number(p.lng)) || Math.abs(Number(p.lat))>90 || Math.abs(Number(p.lng))>180)) throw Error('Ungültige Koordinaten');
+ if(p.visitDate && (!/^\d{4}-\d{2}-\d{2}$/.test(p.visitDate) || Number.isNaN(Date.parse(p.visitDate)))) throw Error('Ungültiges Besuchsdatum');
+ if(input.activities !== undefined && !Array.isArray(input.activities)) throw Error('Ungültige Aktivitäten');
+ p.activities=(input.activities || []).map(a=>{
+  if(!a || !['Eigentümer getroffen','Nachbar getroffen','Information erhalten','Niemand angetroffen','Telefonat','E-Mail','Besichtigung','Sonstiges'].includes(a.type) || typeof a.note!=='string' || a.note.length>10000 || typeof a.date!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(a.date) || Number.isNaN(Date.parse(a.date))) throw Error('Ungültiger Aktivitäteneintrag');
+  return {type:a.type,note:a.note.trim(),date:a.date};
+ });
+ if(p.activities.length>500) throw Error('Maximal 500 Aktivitäten pro Objekt');
  if (!p.title) throw Error('Bitte eine Objektbezeichnung eingeben.');
  if (!statuses.includes(p.status)) throw Error('Ungültiger Status');
  if (!types.includes(p.type)) throw Error('Ungültige Objektart');
@@ -28,11 +39,23 @@ function validate(input) {
  return p;
 }
 function send(res, code, value) { res.writeHead(code, {'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'}); res.end(JSON.stringify(value)); }
+let lastGeocode=0;
 const server = http.createServer(async (req,res) => {
  try {
   const url = new URL(req.url, 'http://localhost');
   if (url.pathname.startsWith('/api/')) {
    if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}` && req.headers.origin !== `https://${req.headers.host}`) return send(res,403,{error:'Zugriff nicht erlaubt'});
+   if(url.pathname === '/api/geocode' && req.method==='GET') {
+    const query=(url.searchParams.get('q')||'').trim();
+    if(query.length<5 || query.length>400) return send(res,400,{error:'Bitte eine vollständige Adresse eingeben.'});
+    if(Date.now()-lastGeocode<1100) return send(res,429,{error:'Bitte einen Moment warten und erneut suchen.'});
+    lastGeocode=Date.now();
+    try {
+     const result=await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&countrycodes=de&q='+encodeURIComponent(query),{headers:{'User-Agent':'AkquiseImmobilien/1.1 (personal real estate visit planning)','Accept-Language':'de'},signal:AbortSignal.timeout(10000)});
+     if(!result.ok) return send(res,502,{error:'Adresssuche derzeit nicht verfügbar. Position direkt auf der Karte setzen.'});
+     return send(res,200,(await result.json()).map(x=>({label:x.display_name,lat:x.lat,lng:x.lon})));
+    } catch { return send(res,502,{error:'Adresssuche nicht erreichbar. Position direkt auf der Karte setzen.'}); }
+   }
    if (url.pathname === '/api/properties' && req.method === 'GET') return send(res,200,db.prepare('SELECT content FROM properties ORDER BY rowid DESC').all().map(r=>JSON.parse(r.content)));
    const match = url.pathname.match(/^\/api\/properties\/([a-f0-9-]+)$/);
    if (match && req.method === 'DELETE') {
@@ -56,8 +79,11 @@ const server = http.createServer(async (req,res) => {
   }
   if(req.method!=='GET') return send(res,405,{error:'Nicht erlaubt'});
   const files={'/':['index.html','text/html'],'/app.js':['app.js','text/javascript'],'/style.css':['style.css','text/css'],'/manifest.webmanifest':['manifest.webmanifest','application/manifest+json'],'/icon.svg':['icon.svg','image/svg+xml']};
+  const vendor=url.pathname.match(/^\/vendor\/leaflet\/(leaflet\.(js|css)|images\/(marker-icon(?:-2x)?|marker-shadow|layers(?:-2x)?)\.png)$/);
+  if(vendor) files[url.pathname]=['vendor/leaflet/'+vendor[1],vendor[1].endsWith('.js')?'text/javascript':vendor[1].endsWith('.css')?'text/css':'image/png'];
+  for(const [path,type] of [['phone.html','text/html'],['phone.webmanifest','application/manifest+json'],['sw.js','text/javascript']])files['/'+path]=[path,type];
   const file=files[url.pathname]; if(!file) return send(res,404,{error:'Nicht gefunden'});
-  res.writeHead(200,{'Content-Type':file[1]+'; charset=utf-8','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"});
+  res.writeHead(200,{'Content-Type':file[1]+'; charset=utf-8','X-Content-Type-Options':'nosniff','Content-Security-Policy':"default-src 'self'; img-src 'self' data: https://tile.openstreetmap.org; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'"});
   res.end(readFileSync(join(root,'public',file[0])));
  } catch(e) { console.error(e.message); send(res,500,{error:'Speichern fehlgeschlagen. Bitte erneut versuchen.'}); }
 });

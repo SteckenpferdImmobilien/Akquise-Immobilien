@@ -1,0 +1,29 @@
+#!/bin/bash
+set -euo pipefail
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+app_root="$(cd "$(dirname "$0")/../../.." && pwd)"
+if ! command -v node >/dev/null 2>&1 || ! node -e 'process.exit(Number(process.versions.node.split(".")[0])>=24?0:1)'; then
+ osascript -e 'display dialog "Bitte einmalig Node.js 24 LTS oder neuer installieren. Danach Akquise erneut öffnen." buttons {"OK"} default button 1'
+ open 'https://nodejs.org/en/download'
+ exit 0
+fi
+support="$HOME/Library/Application Support/Akquise"
+mkdir -p "$support"
+# Preserve the original database for existing installations, including its journal files.
+if [ -f "$app_root/data/akquise.sqlite" ]; then
+ storage="$app_root/data"
+else
+ storage="$support/data"
+fi
+if ! curl --silent --fail --max-time 2 'http://127.0.0.1:3000/api/properties' >/dev/null; then
+ cd "$app_root"
+ HOST=0.0.0.0 PORT=3000 DATA_DIR="$storage" nohup node server.js >"$support/server.log" 2>&1 </dev/null &
+fi
+for attempt in 1 2 3 4 5 6 7 8 9 10; do
+ if curl --silent --fail --max-time 1 'http://127.0.0.1:3000/api/properties' >/dev/null; then
+  open 'http://127.0.0.1:3000'
+  exit 0
+ fi
+ sleep 1
+done
+osascript -e 'display dialog "Akquise konnte nicht starten. Details stehen in Library/Application Support/Akquise/server.log." buttons {"OK"} default button 1'

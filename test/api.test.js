@@ -16,9 +16,11 @@ test('Objekt mit Foto: CRUD, Verlauf, Validierung und Persistenz nach Neustart',
  assert.equal((await request('','POST',{...p,title:''})).status,400);
  assert.equal((await request('','POST',{...p,image:'data:image/svg+xml;base64,PHN2Zz4='})).status,400);
  assert.equal((await request('','POST',{...p,url:'javascript:alert(1)'})).status,400);
+ assert.equal((await request('','POST',{...p,lat:'NaN',lng:'9.7'})).status,400);
+ assert.equal((await request('','POST',{...p,activities:[{type:'Unbekannt',date:'2026-10-22',note:'Test'}]})).status,400);
  const created=await request('','POST',p);assert.equal(created.status,201);assert.equal(created.body.image,p.image);const id=created.body.id;
- const updated=await request('/'+id,'PUT',{...p,status:'Kontaktiert',notes:'Besichtigung vereinbaren'});assert.equal(updated.status,200);assert.equal(updated.body.history.length,2);assert.equal(updated.body.createdAt,created.body.createdAt);
- await stop();await start();const loaded=(await request()).body;assert.equal(loaded.length,1);assert.equal(loaded[0].notes,'Besichtigung vereinbaren');assert.equal(loaded[0].image,p.image);
+ const updated=await request('/'+id,'PUT',{...p,status:'Kontaktiert',notes:'Besichtigung vereinbaren',visitStatus:'Besucht',visitDate:'2026-10-22',lat:'52.3759',lng:'9.732',activities:[{type:'Nachbar getroffen',date:'2026-10-22',note:'Eigentümer am Freitag erreichbar.'}]} );assert.equal(updated.status,200);assert.equal(updated.body.history.length,2);assert.equal(updated.body.createdAt,created.body.createdAt);
+ await stop();await start();const loaded=(await request()).body;assert.equal(loaded.length,1);assert.equal(loaded[0].notes,'Besichtigung vereinbaren');assert.equal(loaded[0].image,p.image);assert.equal(loaded[0].visitStatus,'Besucht');assert.equal(loaded[0].activities[0].type,'Nachbar getroffen');assert.equal(loaded[0].lat,'52.3759');
  assert.equal((await request('/'+id,'DELETE')).status,200);assert.deepEqual((await request()).body,[]);assert.equal((await request('/'+id,'PUT',p)).status,404);
  const blocked=await fetch(`http://127.0.0.1:${port}/api/properties`,{headers:{Origin:'https://untrusted.example'}});assert.equal(blocked.status,403);
 }finally{if(server)await stop();rmSync(dir,{recursive:true,force:true});}});
