@@ -26,10 +26,7 @@ jobs:
           npm ci --ignore-scripts
           npm test
       - name: iPhone-Version als Startseite vorbereiten
-        run: |
-          mkdir -p /tmp/akquise-site
-          cp -R public/. /tmp/akquise-site/
-          cp public/phone.html /tmp/akquise-site/index.html
+        run: node scripts/build-site.mjs /tmp/akquise-site
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

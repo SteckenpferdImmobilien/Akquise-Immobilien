@@ -310,6 +310,7 @@ const server = http.createServer(async (req, res) => {
     }
     if (req.method !== "GET") return send(res, 405, { error: "Nicht erlaubt" });
     const files = {
+      "/index.html": ["index.html", "text/html"],
       "/": ["index.html", "text/html"],
       "/app.js": ["app.js", "text/javascript"],
       "/style.css": ["style.css", "text/css"],
@@ -319,7 +320,7 @@ const server = http.createServer(async (req, res) => {
       ],
       "/icon.svg": ["icon.svg", "image/svg+xml"],
     };
-    for (const name of ["workspace.js", "model.js", "streets.js"])
+    for (const name of ["workspace.js", "model.js", "streets.js", "updates.js"])
       files["/" + name] = [name, "text/javascript"];
     for (const name of ["steckenpferd-logo.png", "steckenpferd-icon.png"])
       files["/brand/" + name] = ["brand/" + name, "image/png"];
@@ -346,6 +347,7 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, {
       "Content-Type": file[1] + "; charset=utf-8",
       "X-Content-Type-Options": "nosniff",
+      "Cache-Control": "no-cache",
       "Content-Security-Policy":
         "default-src 'self'; img-src 'self' data: https://tile.openstreetmap.org; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://nominatim.openstreetmap.org; media-src 'self' data: blob:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'",
     });

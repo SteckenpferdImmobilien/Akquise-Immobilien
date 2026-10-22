@@ -9,7 +9,7 @@
   "theme_color": "#1c1d18",
   "icons": [
     {
-      "src": "./brand/steckenpferd-icon.png",
+      "src": "./brand/steckenpferd-logo.png",
       "sizes": "1254x1254",
       "type": "image/png",
       "purpose": "any"

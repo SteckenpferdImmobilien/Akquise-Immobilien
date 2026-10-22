@@ -61,3 +61,11 @@ Einzelne Objekte können über `streetId` zugeordnet werden; verknüpfte Objekte
 Serverdaten erhalten eine zusätzliche Tabelle `streets`; im Gerätemodus ergänzt IndexedDB-Version 3 den Store `streets`, ohne bestehende Objekte/Kalender zu löschen. JSON-Sicherungen und lokale Datenstände enthalten die Straßen. Beim Import werden Straßen zuerst angelegt und Objektzuordnungen auf die neuen IDs übertragen. Alte Sicherungen ohne Straßen bleiben importierbar. Straßen löschen entfernt keine Immobilien; eine verbliebene Zuordnung wird im Objekt als gelöschte Straße angezeigt und kann entfernt werden.
 
 Zusätzlich geprüft: Straßen-CRUD und Eingabevalidierung, Fortschritt, Persistenz nach Serverneustart, Sicherungsstände, keine Objektlöschung beim Löschen einer Straße; im Browser Hauszähler, Objektverknüpfung, Kalender, Tagesroute, Kartenstartpunkt, vollständiger Import mit neu zugeordneten IDs und mobile Offline-Straßenliste.
+
+## Updates und Veröffentlichung
+
+`scripts/build-site.mjs <Zielverzeichnis>` erstellt die eigenständige iPhone-Seite. In GitHub Actions wird `GITHUB_SHA` als Build-ID verwendet und in HTML, Asset-Adressen und Service Worker übernommen. `index.html` und `phone.html` sind dabei identische Gerätemodus-Einstiege. Lokaler Standard für Prüfungen: `2026.10.22-update-1`.
+
+Der Service Worker hält pro Release zusammengehörige Programmdateien und bietet einen ausdrücklichen Wechsel zur neuen Version. **App aktualisieren** prüft die Veröffentlichung; **Jetzt aktualisieren** aktiviert den wartenden Worker und lädt neu. Offene Dialoge blockieren den Wechsel. Alte App-Shell-Caches werden bei Aktivierung entfernt, niemals IndexedDB oder localStorage. Ein browsergestützter Test mit zwei Builds und 24-Stunden-HTTP-Cache hat Aktivierung, Schutz offener Eingaben, erhaltene Objektdaten und Offline-Neustart mit Logo geprüft.
+
+Startbildschirm-Manifest und Apple-Touch-Icon verweisen auf die vollständige Logo-Webgrafik. Die bereits auf einem iPhone gespeicherte Grafik lässt sich nicht zuverlässig per Web-App austauschen; sichere Schritte stehen in IPHONE.md.

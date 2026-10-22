@@ -52,3 +52,9 @@ Nach einer veröffentlichten Aktualisierung die App bei bestehender Internetverb
 4. Beim Rundgang **„＋ Haus besucht“** nutzen. Einzelne Immobilien bei Bedarf mit **„＋ Objekt zuordnen“** anlegen oder im bestehenden Objekt eine Straße auswählen.
 
 Straßen können in der Tagesroute ausgewählt werden. Wiedervorlagen erscheinen im Kalender und im Aufgabenreiter. Die Hauszählung ist manuell und unabhängig von der Zahl verknüpfter Objekte. Eine optionale Kartenposition markiert den Startpunkt; sie zeigt nicht die gesamte bearbeitete Straßenlänge. Straßen werden auf dem Gerät gespeichert und zusammen mit Objekten und Kalender gesichert. Auch nach diesem Update keine Website-Daten löschen.
+
+## Neue Versionen und Startbildschirm-Symbol
+
+Im Seitenmenü gibt es **App aktualisieren**. Bei einer neuen Version erscheint **Jetzt aktualisieren**. Offene Eingabedialoge vorher speichern oder schließen. Updates tauschen nur die Programmdateien; IndexedDB und lokale Datenstände bleiben bestehen. Jede veröffentlichte Version erhält eigene Asset-Adressen und einen konsistenten Offline-Cache, um Mischungen aus alten und neuen Dateien zu vermeiden.
+
+Das Home-Bildschirm-Symbol verwendet jetzt die vollständige Logo-Webgrafik einschließlich Steckenpferd-Immobilien-Schriftzug. Bestehende iOS-Symbole können gespeichert bleiben; ein Austausch kann nicht durch JavaScript erzwungen werden. Falls es nicht aktualisiert wird: zuerst in der bisherigen App **Daten sichern**, dann die veröffentlichte Seite in Safari öffnen und über **Teilen → Zum Home-Bildschirm** neu hinzufügen. Das bisherige Symbol erst entfernen, wenn die neue Verknüpfung funktioniert und die Daten dort vorhanden sind. Falls der neue Kontext leer ist, die Sicherung importieren, bevor die alte App entfernt wird. Keine Safari-Website-Daten löschen.

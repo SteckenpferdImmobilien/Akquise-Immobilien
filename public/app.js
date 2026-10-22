@@ -361,11 +361,6 @@ async function init() {
   if (deviceMode) {
     $("#storage-info").hidden = false;
     if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
-    if ("serviceWorker" in navigator)
-      navigator.serviceWorker.register("./sw.js").catch(() => {
-        $("#storage-info").textContent =
-          "Offline-Speicherung aktiv; Offline-Start konnte nicht eingerichtet werden. Bitte HTTPS verwenden.";
-      });
   }
   try {
     [properties, events, streets] = await Promise.all([

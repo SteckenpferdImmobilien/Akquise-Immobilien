@@ -2,12 +2,13 @@
 <html lang="de">
   <head>
     <meta charset="utf-8" />
+    <meta name="akquise-build" content="__AKQUISE_BUILD__" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="theme-color" content="#1c1d18" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>Steckenpferd Immobilien · Akquise</title>
     <link rel="icon" type="image/png" href="./brand/steckenpferd-icon.png" />
-    <link rel="apple-touch-icon" href="./brand/steckenpferd-icon.png" />
+    <link rel="apple-touch-icon" href="./brand/steckenpferd-logo.png" />
     <meta name="apple-mobile-web-app-title" content="Steckenpferd" />
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="stylesheet" href="./vendor/leaflet/leaflet.css" />
@@ -17,6 +18,7 @@
     <script src="./app.js" defer></script>
     <script src="./workspace.js" defer></script>
     <script src="./streets.js" defer></script>
+    <script src="./updates.js" defer></script>
   </head>
   <body>
     <button
@@ -69,6 +71,10 @@
         </button>
       </nav>
       <div class="sidebar-bottom">
+        <button type="button" class="secondary" id="check-app-update">
+          ↻ App aktualisieren</button
+        ><small id="app-version"></small>
+        <p id="app-update-status" role="status" aria-live="polite"></p>
         <span class="dot"></span> Dein Akquise-Arbeitsplatz<small
           >Ein Objekt. Ein nächster Schritt.</small
         >
@@ -524,5 +530,21 @@
       </form>
     </dialog>
     <div id="toast" role="status" hidden></div>
+    <section
+      id="app-update-banner"
+      class="app-update-banner"
+      aria-label="App-Update"
+      hidden
+    >
+      <div>
+        <strong>Neue App-Version verfügbar</strong>
+        <p>Deine Objekte, Straßen und Termine bleiben erhalten.</p>
+      </div>
+      <button type="button" class="primary" id="apply-app-update">
+        Jetzt aktualisieren</button
+      ><button type="button" class="secondary" id="dismiss-app-update">
+        Später
+      </button>
+    </section>
   </body>
 </html>
