@@ -13,7 +13,7 @@ db.exec(
   "PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS properties (id TEXT PRIMARY KEY, content TEXT NOT NULL)",
 );
 db.exec(
-  "CREATE TABLE IF NOT EXISTS events (id TEXT PRIMARY KEY, content TEXT NOT NULL); CREATE TABLE IF NOT EXISTS snapshots (id TEXT PRIMARY KEY, content TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS streets (id TEXT PRIMARY KEY, content TEXT NOT NULL); CREATE TABLE IF NOT EXISTS events (id TEXT PRIMARY KEY, content TEXT NOT NULL); CREATE TABLE IF NOT EXISTS snapshots (id TEXT PRIMARY KEY, content TEXT NOT NULL)",
 );
 function snapshot() {
   const properties = db
@@ -24,12 +24,17 @@ function snapshot() {
     .prepare("SELECT content FROM events")
     .all()
     .map((r) => JSON.parse(r.content));
+  const streets = db
+    .prepare("SELECT content FROM streets")
+    .all()
+    .map((r) => JSON.parse(r.content));
   db.prepare("INSERT INTO snapshots(id,content) VALUES (?,?)").run(
     randomUUID(),
     JSON.stringify({
       exportedAt: new Date().toISOString(),
       properties,
       events,
+      streets,
     }),
   );
   db.exec(
@@ -71,6 +76,62 @@ const server = http.createServer(async (req, res) => {
         req.headers.origin !== `https://${req.headers.host}`
       )
         return send(res, 403, { error: "Zugriff nicht erlaubt" });
+      if (url.pathname === "/api/streets" && req.method === "GET")
+        return send(
+          res,
+          200,
+          db
+            .prepare("SELECT content FROM streets ORDER BY rowid DESC")
+            .all()
+            .map((r) => JSON.parse(r.content)),
+        );
+      const streetMatch = url.pathname.match(/^\/api\/streets\/([a-f0-9-]+)$/);
+      if (streetMatch && req.method === "DELETE") {
+        snapshot();
+        const result = db
+          .prepare("DELETE FROM streets WHERE id=?")
+          .run(streetMatch[1]);
+        return send(res, result.changes ? 200 : 404, { ok: !!result.changes });
+      }
+      if (
+        (url.pathname === "/api/streets" && req.method === "POST") ||
+        (streetMatch && req.method === "PUT")
+      ) {
+        if (!req.headers["content-type"]?.startsWith("application/json"))
+          return send(res, 415, { error: "JSON erforderlich" });
+        let body = "";
+        for await (const chunk of req) {
+          body += chunk;
+          if (Buffer.byteLength(body) > 100000)
+            return send(res, 413, { error: "Eintrag zu groß" });
+        }
+        let street;
+        try {
+          street = AkquiseModel.street(JSON.parse(body));
+        } catch (err) {
+          return send(res, 400, { error: err.message });
+        }
+        const old = streetMatch
+          ? db
+              .prepare("SELECT content FROM streets WHERE id=?")
+              .get(streetMatch[1])
+          : null;
+        if (streetMatch && !old)
+          return send(res, 404, { error: "Straße nicht gefunden" });
+        street = {
+          ...street,
+          id: streetMatch ? streetMatch[1] : randomUUID(),
+          createdAt: old
+            ? JSON.parse(old.content).createdAt
+            : new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        snapshot();
+        db.prepare(
+          "INSERT INTO streets(id,content) VALUES (?,?) ON CONFLICT(id) DO UPDATE SET content=excluded.content",
+        ).run(street.id, JSON.stringify(street));
+        return send(res, streetMatch ? 200 : 201, street);
+      }
       if (url.pathname === "/api/snapshots" && req.method === "GET")
         return send(
           res,
@@ -258,7 +319,7 @@ const server = http.createServer(async (req, res) => {
       ],
       "/icon.svg": ["icon.svg", "image/svg+xml"],
     };
-    for (const name of ["workspace.js", "model.js"])
+    for (const name of ["workspace.js", "model.js", "streets.js"])
       files["/" + name] = [name, "text/javascript"];
     for (const name of ["steckenpferd-logo.png", "steckenpferd-icon.png"])
       files["/brand/" + name] = ["brand/" + name, "image/png"];

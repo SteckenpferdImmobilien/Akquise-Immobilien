@@ -1926,3 +1926,126 @@ textarea {
   border-color: var(--gold-dark);
   border-style: dashed;
 }
+.street-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 25px;
+}
+.street-summary article {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+}
+.street-summary span {
+  font-size: 12px;
+  color: var(--muted);
+}
+.street-summary strong {
+  display: block;
+  font-size: 30px;
+  font-weight: 550;
+  color: var(--gold-dark);
+  margin-top: 10px;
+}
+.street-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.street-card {
+  margin: 0;
+}
+.street-card .panel-heading {
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.street-card h3 {
+  font-size: 21px;
+  margin: 7px 0;
+}
+.street-card p {
+  margin: 7px 0;
+}
+.street-state {
+  font-size: 11px;
+  color: var(--gold-dark);
+}
+.street-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 18px;
+}
+.street-progress strong {
+  font-size: 27px;
+  color: var(--gold-dark);
+}
+.street-progress span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.street-note {
+  white-space: pre-wrap;
+  max-height: 110px;
+  overflow: auto;
+}
+.street-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.street-actions .secondary {
+  font-size: 11px;
+  padding: 9px 11px;
+}
+.street-actions .text-button {
+  padding: 8px 0;
+  color: var(--gold-dark);
+}
+.street-followup {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--border);
+  padding-top: 13px;
+  margin-top: 15px;
+  font-size: 12px;
+}
+#street-error {
+  color: var(--gold-dark);
+  font-weight: 600;
+  font-size: 12px;
+}
+#street-locate {
+  margin-top: 14px;
+}
+@media (max-width: 1000px) {
+  .street-list {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .street-summary {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .street-summary article {
+    padding: 14px;
+  }
+  .street-summary span {
+    font-size: 11px;
+  }
+  .street-summary strong {
+    font-size: 26px;
+  }
+  .street-card h3 {
+    font-size: 19px;
+  }
+  .street-card .secondary {
+    font-size: 11px;
+  }
+}

@@ -23,6 +23,7 @@ let properties = [],
   activities = [],
   attachments = [],
   events = [],
+  streets = [],
   map,
   markers,
   deviceMode = document.body.dataset.storage === "device";
@@ -134,7 +135,11 @@ function render() {
         )}</span>${escape(p.owner) || "Noch kein Kontakt hinterlegt"}</div><div class="next"><span>${escape(p.nextAction) || "Nächsten Schritt planen"}</span><span class="${due(p) ? "overdue" : ""}">${p.dueDate ? (p.dueDate === today() ? "Heute" : date(p.dueDate)) : "Kein Termin"}</span></div><div class="quick-actions"><button type="button" data-quick="Niemand angetroffen" data-object="${p.id}">Niemand da</button><button type="button" data-quick="Nachbar getroffen" data-object="${p.id}">Nachbar</button><button type="button" data-quick="Eigentümer getroffen" data-object="${p.id}">Eigentümer</button></div></div></article>`,
     )
     .join("");
-  $("#empty").hidden = list.length > 0 || view === "map";
+  $("#empty").hidden =
+    list.length > 0 ||
+    view === "map" ||
+    (view === "tasks" &&
+      streets.some((s) => s.status !== "Abgeschlossen" && s.dueDate));
   $("#empty h3").textContent = properties.length
     ? "Keine passenden Objekte."
     : "Platz für deine nächste Chance.";
@@ -155,6 +160,7 @@ function edit(p = null) {
   editing = p?.id || null;
   image = p?.image || "";
   $("#property-form").reset();
+  fillStreetSelect(p?.streetId || "");
   $("#form-error").textContent = "";
   $("#editor-title").textContent = p ? "Objekt bearbeiten" : "Neues Objekt";
   $("#delete").hidden = !p;
@@ -177,6 +183,7 @@ function edit(p = null) {
     "lng",
     "district",
     "priority",
+    "streetId",
   ])
     if (p) $("#property-form").elements[field].value = p[field] || "";
   $("#history").innerHTML = p
@@ -336,7 +343,7 @@ $("#export").onclick = () => {
   const blob = new Blob(
     [
       JSON.stringify(
-        { exportedAt: new Date().toISOString(), properties, events },
+        { exportedAt: new Date().toISOString(), properties, events, streets },
         null,
         2,
       ),
@@ -361,7 +368,11 @@ async function init() {
       });
   }
   try {
-    [properties, events] = await Promise.all([api(), eventsApi()]);
+    [properties, events, streets] = await Promise.all([
+      api(),
+      eventsApi(),
+      streetsApi(),
+    ]);
     render();
   } catch (err) {
     $("#notice").textContent =
@@ -535,6 +546,7 @@ function renderMap(list) {
     box.append(button);
     marker.bindPopup(box);
   }
+  renderStreetMarkers();
   $("#unmapped").textContent = missing
     ? `${missing} Objekt(e) ohne Kartenposition. Im Objekt unter „Position auf der Karte“ die Adresse suchen.`
     : "";
@@ -543,9 +555,9 @@ let deviceDb;
 async function localDb() {
   if (!deviceDb)
     deviceDb = new Promise((resolve, reject) => {
-      const req = indexedDB.open("akquise-device", 2);
+      const req = indexedDB.open("akquise-device", 3);
       req.onupgradeneeded = () => {
-        for (const name of ["properties", "events", "snapshots"])
+        for (const name of ["properties", "events", "streets", "snapshots"])
           if (!req.result.objectStoreNames.contains(name))
             req.result.createObjectStore(name, { keyPath: "id" });
       };

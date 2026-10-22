@@ -1,5 +1,6 @@
 const sectionNames = {
   all: "Deine Immobilien",
+  streets: "Straßenakquise",
   tasks: "Wiedervorlagen",
   map: "Gebäude & Besuche",
   calendar: "Kalender",
@@ -51,8 +52,17 @@ function renderWorkspace() {
   $("#page-title").textContent = sectionNames[view] || "Deine Akquise";
   $("#list-title").textContent = sectionNames[view] || "Deine Immobilien";
   $("#add").textContent =
-    view === "calendar" ? "＋ Termin hinzufügen" : "＋ Objekt hinzufügen";
-  $("#add").onclick = () => (view === "calendar" ? editEvent() : edit());
+    view === "streets"
+      ? "＋ Straße hinzufügen"
+      : view === "calendar"
+        ? "＋ Termin hinzufügen"
+        : "＋ Objekt hinzufügen";
+  $("#add").onclick = () =>
+    view === "streets"
+      ? editStreet()
+      : view === "calendar"
+        ? editEvent()
+        : edit();
   $("#district-options").innerHTML = [
     ...new Set(properties.map((p) => p.district).filter(Boolean)),
   ]
@@ -68,7 +78,9 @@ function renderWorkspace() {
       .map((d) => `<option value="${escape(d)}">${escape(d)}</option>`)
       .join("");
   districtFilter.value = selectedDistrict;
+  renderStreetReminders();
   const panel = $("#workspace-extra");
+  if (view === "streets") renderStreets(panel);
   if (view === "calendar") renderCalendar(panel);
   if (view === "route") renderRoute(panel);
   if (view === "activities") renderTimeline(panel);
@@ -91,16 +103,21 @@ async function deviceCollection(name, path = "", options = {}) {
     const input = JSON.parse(options.body);
     const old =
       method === "PUT"
-        ? (name === "events" ? events : properties).find(
-            (p) => p.id === path.slice(1),
-          )
+        ? (name === "events"
+            ? events
+            : name === "streets"
+              ? streets
+              : properties
+          ).find((p) => p.id === path.slice(1))
         : null;
     if (method === "PUT" && !old) throw Error("Eintrag nicht gefunden.");
     const now = new Date().toISOString();
     value = {
       ...(name === "events"
         ? AkquiseModel.event(input)
-        : AkquiseModel.property(input)),
+        : name === "streets"
+          ? AkquiseModel.street(input)
+          : AkquiseModel.property(input)),
       id: old?.id || crypto.randomUUID(),
       createdAt: old?.createdAt || now,
       updatedAt: now,
@@ -130,6 +147,7 @@ async function deviceCollection(name, path = "", options = {}) {
         exportedAt: new Date().toISOString(),
         properties: structuredClone(properties),
         events: structuredClone(events),
+        streets: structuredClone(streets),
       });
     }
     const req =
@@ -186,24 +204,41 @@ async function importBackup(e) {
     const data = JSON.parse(await file.text());
     if (
       !Array.isArray(data.properties) ||
-      (data.events !== undefined && !Array.isArray(data.events))
+      (data.events !== undefined && !Array.isArray(data.events)) ||
+      (data.streets !== undefined && !Array.isArray(data.streets))
     )
       throw Error("Ungültige Akquise-Sicherung.");
     const objects = data.properties.map((p) => ({
       oldId: p.id,
       data: AkquiseModel.property(p),
     }));
+    const streetEntries = (data.streets || []).map((s) => ({
+      oldId: s.id,
+      data: AkquiseModel.street(s),
+    }));
     const appointments = (data.events || []).map((p) => AkquiseModel.event(p));
     if (
       !confirm(
-        `${objects.length} Objekte und ${appointments.length} Kalendereinträge zusätzlich importieren? Bestehende Daten bleiben erhalten.`,
+        `${streetEntries.length} Straßen, ${objects.length} Objekte und ${appointments.length} Kalendereinträge zusätzlich importieren? Bestehende Daten bleiben erhalten.`,
       )
     )
       return;
     const ids = new Map();
     let count = 0;
     try {
+      const streetIds = new Map();
+      for (const s of streetEntries) {
+        const saved = await streetsApi("", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(s.data),
+        });
+        streetIds.set(s.oldId, saved.id);
+        streets.push(saved);
+        count++;
+      }
       for (const p of objects) {
+        p.data.streetId = streetIds.get(p.data.streetId) || "";
         const saved = await api("", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -228,10 +263,14 @@ async function importBackup(e) {
         `${count} Einträge importiert, danach Fehler: ${err.message}. Bitte nicht die ganze Datei erneut importieren, sonst entstehen Duplikate.`,
       );
     } finally {
-      [properties, events] = await Promise.all([api(), eventsApi()]);
+      [properties, events, streets] = await Promise.all([
+        api(),
+        eventsApi(),
+        streetsApi(),
+      ]);
       render();
     }
-    toast("Objekte und Kalender importiert.");
+    toast("Straßen, Objekte und Kalender importiert.");
   } catch (err) {
     toast(err.message);
   } finally {
@@ -240,6 +279,16 @@ async function importBackup(e) {
 }
 function dayEntries(day) {
   return [
+    ...streets
+      .filter((s) => s.status !== "Abgeschlossen" && s.dueDate === day)
+      .map((s) => ({
+        id: s.id,
+        title: s.name + " · " + (s.nextAction || "Wiedervorlage"),
+        date: s.dueDate,
+        time: "",
+        type: "Straßen-Wiedervorlage",
+        kind: "street",
+      })),
     ...events
       .filter((e) => e.date === day)
       .map((e) => ({ ...e, kind: "event" })),
@@ -314,9 +363,11 @@ function renderCalendar(panel) {
     .forEach(
       (b) =>
         (b.onclick = () =>
-          b.dataset.kind === "property"
-            ? edit(properties.find((p) => p.id === b.dataset.entry))
-            : editEvent(events.find((e) => e.id === b.dataset.entry))),
+          b.dataset.kind === "street"
+            ? editStreet(streets.find((s) => s.id === b.dataset.entry))
+            : b.dataset.kind === "property"
+              ? edit(properties.find((p) => p.id === b.dataset.entry))
+              : editEvent(events.find((e) => e.id === b.dataset.entry))),
     );
   $("#ics-export").onclick = exportIcs;
 }
@@ -518,12 +569,13 @@ $("#quick-form").onsubmit = async (e) => {
   }
 };
 function renderRoute(panel) {
-  routeIds = routeIds.filter((id) => properties.some((p) => p.id === id));
-  const chosen = routeIds.map((id) => properties.find((p) => p.id === id));
-  const candidates = properties.filter(
+  const routeItems = [...properties, ...streetRouteItems()];
+  routeIds = routeIds.filter((id) => routeItems.some((p) => p.id === id));
+  const chosen = routeIds.map((id) => routeItems.find((p) => p.id === id));
+  const candidates = routeItems.filter(
     (p) => open(p) && p.priority !== "Kein Potenzial",
   );
-  panel.innerHTML = `<div class="panel-heading"><div><h2>Heute unterwegs</h2><p class="map-info">Objekte auswählen, Reihenfolge festlegen und zu Fuß navigieren.</p></div><button class="secondary" id="route-clear">Auswahl leeren</button></div><div class="route-layout"><section class="panel"><h3>Objekte auswählen</h3><label class="check-label"><input type="checkbox" id="route-unvisited" ${routeOnlyUnvisited ? "checked" : ""}> Nur noch nicht besuchte Objekte</label><div id="route-candidates">${candidates.map((p) => `<label class="route-choice" ${routeOnlyUnvisited && p.visitStatus && p.visitStatus !== "Nicht besucht" ? "hidden" : ""} data-visited="${p.visitStatus && p.visitStatus !== "Nicht besucht"}"><input type="checkbox" data-route-id="${p.id}" ${routeIds.includes(p.id) ? "checked" : ""}><span><strong>${escape(p.title)}</strong><small>${escape(p.address) || "Adresse fehlt"} · ${escape(p.visitStatus || "Nicht besucht")}</small></span></label>`).join("") || '<p class="map-info">Zuerst Objekte erfassen.</p>'}</div></section><section class="panel"><h3>${chosen.length} Stationen ausgewählt</h3>${chosen.map((p, i) => `<div class="route-stop"><b>${i + 1}</b><div><strong>${escape(p.title)}</strong><small>${escape(p.address)}</small><button class="text-button" data-visit="${p.id}">Besuch erfassen</button></div><div class="stop-controls"><button data-move="${i}" data-direction="-1" ${i === 0 ? "disabled" : ""} aria-label="Station nach oben">↑</button><button data-move="${i}" data-direction="1" ${i === chosen.length - 1 ? "disabled" : ""} aria-label="Station nach unten">↓</button></div></div>`).join("")}<div id="route-links"></div><p class="map-info">Google Maps erhält beim Öffnen die ausgewählten Standorte. Reihenfolge manuell, keine automatische Straßenoptimierung. Routen werden in Abschnitte mit maximal vier Stationen geteilt.</p></section></div>`;
+  panel.innerHTML = `<div class="panel-heading"><div><h2>Heute unterwegs</h2><p class="map-info">Straßen oder Objekte auswählen, Reihenfolge festlegen und zu Fuß navigieren.</p></div><button class="secondary" id="route-clear">Auswahl leeren</button></div><div class="route-layout"><section class="panel"><h3>Straßen & Objekte auswählen</h3><label class="check-label"><input type="checkbox" id="route-unvisited" ${routeOnlyUnvisited ? "checked" : ""}> Nur noch nicht besuchte Objekte</label><div id="route-candidates">${candidates.map((p) => `<label class="route-choice" ${routeOnlyUnvisited && p.visitStatus && p.visitStatus !== "Nicht besucht" ? "hidden" : ""} data-visited="${p.visitStatus && p.visitStatus !== "Nicht besucht"}"><input type="checkbox" data-route-id="${p.id}" ${routeIds.includes(p.id) ? "checked" : ""}><span><strong>${escape(p.title)}</strong><small>${escape(p.address) || "Adresse fehlt"} · ${escape(p.visitStatus || "Nicht besucht")}</small></span></label>`).join("") || '<p class="map-info">Zuerst Objekte erfassen.</p>'}</div></section><section class="panel"><h3>${chosen.length} Stationen ausgewählt</h3>${chosen.map((p, i) => `<div class="route-stop"><b>${i + 1}</b><div><strong>${escape(p.title)}</strong><small>${escape(p.address)}</small><button class="text-button" data-visit="${p.id}">Besuch erfassen</button></div><div class="stop-controls"><button data-move="${i}" data-direction="-1" ${i === 0 ? "disabled" : ""} aria-label="Station nach oben">↑</button><button data-move="${i}" data-direction="1" ${i === chosen.length - 1 ? "disabled" : ""} aria-label="Station nach unten">↓</button></div></div>`).join("")}<div id="route-links"></div><p class="map-info">Google Maps erhält beim Öffnen die ausgewählten Standorte. Reihenfolge manuell, keine automatische Straßenoptimierung. Routen werden in Abschnitte mit maximal vier Stationen geteilt.</p></section></div>`;
   $("#route-clear").onclick = () => {
     routeIds = [];
     saveRoute();
@@ -561,7 +613,10 @@ function renderRoute(panel) {
     .querySelectorAll("[data-visit]")
     .forEach(
       (b) =>
-        (b.onclick = () => quickVisit(b.dataset.visit, "Eigentümer getroffen")),
+        (b.onclick = () =>
+          b.dataset.visit.startsWith("street:")
+            ? editStreet(streets.find((s) => s.id === b.dataset.visit.slice(7)))
+            : quickVisit(b.dataset.visit, "Eigentümer getroffen")),
     );
   for (let i = 0; i < chosen.length; i += 4) {
     const segment = chosen.slice(i, i + 4);
@@ -681,7 +736,7 @@ function renderReports(panel) {
 let backupRender = 0;
 async function renderBackups(panel) {
   const generation = ++backupRender;
-  panel.innerHTML = `<section class="panel"><h2>Deine Daten schützen</h2><p>Vor jeder Änderung bleiben die letzten fünf Datenstände automatisch ${deviceMode ? "auf diesem Gerät" : "in der lokalen Datenbank"} erhalten. Diese Kopien schützen vor Änderungen, nicht vor Geräteverlust.</p><div class="button-group"><button class="primary" id="backup-now">Sicherung herunterladen</button><button class="secondary" id="backup-import">Sicherung importieren</button></div><p class="map-info">Sicherung in Dateien / iCloud Drive ablegen. Sie enthält persönliche Kontakte, Fotos, Anhänge und den Kalender.</p></section><section class="panel"><h3>Automatische lokale Datenstände</h3><div id="snapshot-list">Wird geladen …</div></section><section class="panel"><h3>Mac & iPhone</h3><p>${deviceMode ? "Dieser Modus speichert auf diesem Gerät." : "Dieser Modus speichert auf dem Mac-Server."} Sicherung exportieren und auf dem anderen Gerät importieren, um Daten manuell zu übertragen.</p><p class="map-info">Automatische Cloud-Sicherung und geräteübergreifende Synchronisierung sind noch nicht verbunden. Dafür fehlt ein gemeinsam erreichbarer, geschützter Datenspeicher. Kalenderexport ist ein einmaliger Transfer, keine Apple-Kalender-Synchronisierung.</p></section>`;
+  panel.innerHTML = `<section class="panel"><h2>Deine Daten schützen</h2><p>Vor jeder Änderung bleiben die letzten fünf Datenstände automatisch ${deviceMode ? "auf diesem Gerät" : "in der lokalen Datenbank"} erhalten. Diese Kopien schützen vor Änderungen, nicht vor Geräteverlust.</p><div class="button-group"><button class="primary" id="backup-now">Sicherung herunterladen</button><button class="secondary" id="backup-import">Sicherung importieren</button></div><p class="map-info">Sicherung in Dateien / iCloud Drive ablegen. Sie enthält Straßen, persönliche Kontakte, Fotos, Anhänge und den Kalender.</p></section><section class="panel"><h3>Automatische lokale Datenstände</h3><div id="snapshot-list">Wird geladen …</div></section><section class="panel"><h3>Mac & iPhone</h3><p>${deviceMode ? "Dieser Modus speichert auf diesem Gerät." : "Dieser Modus speichert auf dem Mac-Server."} Sicherung exportieren und auf dem anderen Gerät importieren, um Daten manuell zu übertragen.</p><p class="map-info">Automatische Cloud-Sicherung und geräteübergreifende Synchronisierung sind noch nicht verbunden. Dafür fehlt ein gemeinsam erreichbarer, geschützter Datenspeicher. Kalenderexport ist ein einmaliger Transfer, keine Apple-Kalender-Synchronisierung.</p></section>`;
   $("#backup-now").onclick = () => $("#export").click();
   $("#backup-import").onclick = () => $("#import-file").click();
   try {
@@ -691,7 +746,7 @@ async function renderBackups(panel) {
       ? copies
           .map(
             (b, i) =>
-              `<div class="snapshot-row"><span>${new Date(b.exportedAt).toLocaleString("de-DE")}<small>${b.properties.length} Objekte · ${(b.events || []).length} Kalendereinträge</small></span><button class="secondary" data-snapshot="${i}">Herunterladen</button></div>`,
+              `<div class="snapshot-row"><span>${new Date(b.exportedAt).toLocaleString("de-DE")}<small>${(b.streets || []).length} Straßen · ${b.properties.length} Objekte · ${(b.events || []).length} Kalendereinträge</small></span><button class="secondary" data-snapshot="${i}">Herunterladen</button></div>`,
           )
           .join("")
       : '<p class="map-info">Nach der nächsten gespeicherten Änderung erscheint hier der vorherige Datenstand.</p>';
@@ -885,4 +940,3 @@ $("#editor").addEventListener("close", () => {
   clearTimeout(recordTimer);
   $("#save").disabled = false;
 });
-init();

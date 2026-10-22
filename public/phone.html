@@ -16,6 +16,7 @@
     <script src="./model.js" defer></script>
     <script src="./app.js" defer></script>
     <script src="./workspace.js" defer></script>
+    <script src="./streets.js" defer></script>
   </head>
   <body data-storage="device">
     <button
@@ -47,6 +48,8 @@
         <span class="nav-heading">ARBEITSPLATZ</span
         ><button class="nav active" data-view="all">
           ▦ <span>Objekte</span></button
+        ><button class="nav" data-view="streets">
+          ≋ <span>Straßenakquise</span></button
         ><button class="nav" data-view="calendar">
           ▦ <span>Kalender</span></button
         ><button class="nav" data-view="tasks">
@@ -168,8 +171,8 @@
             ><span>Karte antippen → neues Objekt am Standort</span>
           </div>
           <p class="map-info">
-            Nur erfasste Objekte werden markiert. Unmarkierte Gebäude haben noch
-            keinen Besuchsstatus.
+            Erfasste Objekte und Straßen-Startpunkte werden markiert.
+            Unmarkierte Gebäude haben noch keinen Besuchsstatus.
           </p>
           <div id="map"></div>
           <div class="legend">
@@ -186,6 +189,7 @@
           </div>
           <div id="unmapped"></div>
         </section>
+        <div id="street-reminders" hidden></div>
         <div id="cards" class="cards"></div>
         <div id="empty" class="empty" hidden>
           <div>⌂</div>
@@ -282,6 +286,13 @@
                   name="address"
                   maxlength="400"
                   placeholder="Straße, Hausnummer, PLZ und Ort" /></label
+              ><label class="full"
+                >Straßenakquise zuordnen<select
+                  name="streetId"
+                  id="property-street"
+                >
+                  <option value="">Keine Straße zugeordnet</option>
+                </select></label
               ><label
                 >Gebiet / Stadtteil<input
                   name="district"

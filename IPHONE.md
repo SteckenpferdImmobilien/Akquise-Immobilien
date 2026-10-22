@@ -43,3 +43,12 @@ Im Objekt unter **Fotos & Dateien** lassen sich weitere Fotos, PDF-/Textdateien 
 Unter **Datensicherung** stehen die letzten fünf lokalen Datenstände zum Download bereit. Zusätzlich regelmäßig eine aktuelle Sicherung einschließlich Kalender in Dateien/iCloud Drive ablegen. Die automatischen Kopien sind auf demselben Gerät und ersetzen keine externe Sicherung. Ein Import fügt Einträge hinzu und kann Duplikate erzeugen; er ersetzt vorhandene Daten nicht. Ein geräteübergreifender Abgleich ist nicht eingerichtet.
 
 Nach einer veröffentlichten Aktualisierung die App bei bestehender Internetverbindung vollständig schließen und neu öffnen. Falls noch die alte Oberfläche erscheint, einmal in Safari neu laden; keine Website-Daten löschen, da darin die Objekte liegen. Ein Datenbank-Upgrade erhält vorhandene Objekte; falls die App darum bittet, andere geöffnete Akquise-Fenster schließen.
+
+## Ganze Straßen bearbeiten
+
+1. Menü **☰ → Straßenakquise → Straße hinzufügen** öffnen.
+2. Straße und Ort eintragen. Ohne Hausnummernbereich gilt die ganze Straße; alternativ einen Abschnitt und die Straßenseite festlegen.
+3. Status, Notizen und nächste Aktion/Wiedervorlage ergänzen. Optional die Anzahl der Häuser und bisher besuchte Häuser eintragen.
+4. Beim Rundgang **„＋ Haus besucht“** nutzen. Einzelne Immobilien bei Bedarf mit **„＋ Objekt zuordnen“** anlegen oder im bestehenden Objekt eine Straße auswählen.
+
+Straßen können in der Tagesroute ausgewählt werden. Wiedervorlagen erscheinen im Kalender und im Aufgabenreiter. Die Hauszählung ist manuell und unabhängig von der Zahl verknüpfter Objekte. Eine optionale Kartenposition markiert den Startpunkt; sie zeigt nicht die gesamte bearbeitete Straßenlänge. Straßen werden auf dem Gerät gespeichert und zusammen mit Objekten und Kalender gesichert. Auch nach diesem Update keine Website-Daten löschen.

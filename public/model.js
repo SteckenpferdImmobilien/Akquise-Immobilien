@@ -94,6 +94,7 @@
       "lat",
       "lng",
       "district",
+      "streetId",
       "priority",
     ])
       p[key] = string(
@@ -196,7 +197,66 @@
     e.done = !!input.done;
     return e;
   }
+  function street(input) {
+    if (!input || typeof input !== "object" || Array.isArray(input))
+      fail("Ungültige Straße");
+    const s = {};
+    for (const key of [
+      "name",
+      "city",
+      "district",
+      "houseFrom",
+      "houseTo",
+      "side",
+      "status",
+      "visitDate",
+      "dueDate",
+      "nextAction",
+      "notes",
+      "priority",
+      "lat",
+      "lng",
+      "totalCount",
+      "visitedCount",
+    ])
+      s[key] = string(input, key, key === "notes" ? 20000 : 1000);
+    if (!s.name || !s.city) fail("Straße und Ort sind erforderlich.");
+    s.side ||= "Beide Seiten";
+    s.status ||= "Geplant";
+    s.priority ||= "Normal";
+    if (
+      !["Beide Seiten", "Gerade Hausnummern", "Ungerade Hausnummern"].includes(
+        s.side,
+      ) ||
+      ![
+        "Geplant",
+        "In Bearbeitung",
+        "Abgeschlossen",
+        "Erneut besuchen",
+      ].includes(s.status) ||
+      !priorities.includes(s.priority)
+    )
+      fail("Ungültiger Straßenstatus");
+    for (const key of ["visitDate", "dueDate"])
+      if (s[key] && !validDate(s[key])) fail("Ungültiges Datum");
+    for (const key of ["totalCount", "visitedCount"])
+      if (s[key] && (!/^\d{1,5}$/.test(s[key]) || Number(s[key]) > 10000))
+        fail("Hausanzahl muss eine ganze Zahl zwischen 0 und 10000 sein.");
+    if (s.totalCount && Number(s.visitedCount) > Number(s.totalCount))
+      fail("Besuchte Häuser können nicht über der Gesamtzahl liegen.");
+    if (
+      Boolean(s.lat) !== Boolean(s.lng) ||
+      (s.lat &&
+        (!Number.isFinite(Number(s.lat)) ||
+          !Number.isFinite(Number(s.lng)) ||
+          Math.abs(Number(s.lat)) > 90 ||
+          Math.abs(Number(s.lng)) > 180))
+    )
+      fail("Ungültige Kartenposition");
+    return s;
+  }
   globalThis.AkquiseModel = {
+    street,
     property,
     event,
     validDate,

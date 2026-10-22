@@ -51,3 +51,13 @@ Vor jeder Änderung werden die letzten fünf Zustände automatisch im jeweiligen
 Zusätzlich in Chromium geprüft: Gebiet/Priorität, Textanhang, Sprachaufnahme mit simuliertem Mikrofon, schneller Besuch, Kalender bearbeiten/neuladen/exportieren, Tagesroute, Aktivitäten, Gebietsfilter, Sicherungen, vollständiger JSON-Import einschließlich Kalender und Audio in den Gerätemodus, IndexedDB-Upgrade, mobile Seitennavigation bei 390 Pixeln und Offline-Neustart mit Kalender. Das ersetzt keine Prüfung auf echtem iOS/macOS. Kartenkacheln und öffentliche Adresssuche waren bei der letzten Live-Prüfung durch den Cloud-Netzwerkproxy blockiert; Marker/Filter wurden geprüft, erfolgreiche Live-Kartendienste werden damit nicht behauptet.
 
 Die GitHub-Pages-Veröffentlichung muss unter Settings → Pages aktiviert und der Workflow erfolgreich abgeschlossen sein. Ein Git-Push allein bestätigt keine produktive Bereitstellung.
+
+## Straßenakquise
+
+Eigener Reiter **Straßenakquise** für Straßenzüge ohne vorherige Einzelobjekt-Erfassung. Straße und Ort sind Pflicht; optional Hausnummernbereich, gerade/ungerade/beide Seiten, Gebiet, Priorität, Status, Besuchsdatum, nächste Aktion, Wiedervorlage, Notizen und manuell erfasste Hauszahlen. „＋ Haus besucht“ erhöht den Zähler und setzt eine geplante Straße auf „In Bearbeitung“. Der Status „Abgeschlossen“ wird ausdrücklich gewählt, nicht aus einer Schätzung abgeleitet. Hausanzahl und Fortschritt werden nicht aus Hausnummern oder Kartenmaterial errechnet.
+
+Einzelne Objekte können über `streetId` zugeordnet werden; verknüpfte Objekte zählen nicht automatisch als besuchte Häuser. Straßen erscheinen in Tagesrouten und mit Wiedervorlagen im Kalender sowie im Aufgabenreiter. Eine optionale Kartenmarkierung ist ein Startpunkt, keine gezeichnete Straßenabdeckung. Navigation führt zur gewählten Straße/Position, sie garantiert keinen Rundgang über jeden Hauseingang.
+
+Serverdaten erhalten eine zusätzliche Tabelle `streets`; im Gerätemodus ergänzt IndexedDB-Version 3 den Store `streets`, ohne bestehende Objekte/Kalender zu löschen. JSON-Sicherungen und lokale Datenstände enthalten die Straßen. Beim Import werden Straßen zuerst angelegt und Objektzuordnungen auf die neuen IDs übertragen. Alte Sicherungen ohne Straßen bleiben importierbar. Straßen löschen entfernt keine Immobilien; eine verbliebene Zuordnung wird im Objekt als gelöschte Straße angezeigt und kann entfernt werden.
+
+Zusätzlich geprüft: Straßen-CRUD und Eingabevalidierung, Fortschritt, Persistenz nach Serverneustart, Sicherungsstände, keine Objektlöschung beim Löschen einer Straße; im Browser Hauszähler, Objektverknüpfung, Kalender, Tagesroute, Kartenstartpunkt, vollständiger Import mit neu zugeordneten IDs und mobile Offline-Straßenliste.
