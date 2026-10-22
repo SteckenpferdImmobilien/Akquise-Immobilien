@@ -3,10 +3,12 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#153d35" />
+    <meta name="theme-color" content="#1c1d18" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>Steckenpferd Immobilien · Akquise</title>
-    <link rel="icon" href="./icon.svg" />
+    <link rel="icon" type="image/png" href="./brand/steckenpferd-icon.png" />
+    <link rel="apple-touch-icon" href="./brand/steckenpferd-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="Steckenpferd" />
     <link rel="manifest" href="./phone.webmanifest" />
     <link rel="stylesheet" href="./vendor/leaflet/leaflet.css" />
     <link rel="stylesheet" href="./style.css" />
@@ -30,11 +32,16 @@
       hidden
     ></button>
     <aside class="sidebar">
-      <a class="brand" href="./"
-        >▧
-        <span
-          >Steckenpferd<span class="brand-sub">IMMOBILIEN GMBH · AKQUISE</span></span
-        ></a
+      <a
+        class="brand brand-logo"
+        href="./"
+        aria-label="Steckenpferd Immobilien – zur Übersicht"
+        ><img
+          src="./brand/steckenpferd-logo.png"
+          alt="Steckenpferd Immobilien"
+          width="180"
+          height="180"
+        /><span class="logo-slogan">Weil Immobilien Freude machen!</span></a
       >
       <nav aria-label="Hauptnavigation">
         <span class="nav-heading">ARBEITSPLATZ</span
@@ -66,10 +73,20 @@
     </aside>
     <main>
       <header>
-        <div>
-          <div class="company-label">Steckenpferd Immobilien GmbH</div><div class="eyebrow" id="today"></div>
-          <h1 id="page-title">Alles im Blick.</h1>
-          <p class="company-slogan">Weil Immobilien Freude machen!</p>
+        <div class="brand-heading">
+          <img
+            class="header-emblem"
+            src="./brand/steckenpferd-icon.png"
+            alt=""
+            width="72"
+            height="72"
+          />
+          <div>
+            <div class="company-label">Steckenpferd Immobilien GmbH</div>
+            <div class="eyebrow" id="today"></div>
+            <h1 id="page-title">Alles im Blick.</h1>
+            <p class="company-slogan">Weil Immobilien Freude machen!</p>
+          </div>
         </div>
         <button class="primary" id="add">＋ Objekt hinzufügen</button>
       </header>
@@ -173,7 +190,9 @@
           </button>
         </div>
       </section>
-      <footer>Steckenpferd Immobilien GmbH · Weil Immobilien Freude machen!</footer>
+      <footer>
+        Steckenpferd Immobilien GmbH · Weil Immobilien Freude machen!
+      </footer>
     </main>
     <dialog id="editor">
       <form id="property-form">

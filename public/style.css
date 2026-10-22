@@ -1615,8 +1615,199 @@ progress::-moz-progress-bar {
   }
 }
 /* Company branding; original logo will be added after source verification. */
-.sidebar .brand {font-size:21px;gap:9px;line-height:1.3}
-.sidebar .brand-sub {font-size:8px;letter-spacing:1.2px;line-height:1.6;color:#c0d1e4}
-.company-label {font-size:11px;letter-spacing:1px;font-weight:650;color:#4e739a;margin-bottom:11px}
-header .company-slogan {font-size:14px;font-style:italic;color:#5d7895;margin-top:8px}
-@media(max-width:760px){.company-label{font-size:10px;letter-spacing:.7px}header .company-slogan{font-size:13px}}
+.sidebar .brand {
+  font-size: 21px;
+  gap: 9px;
+  line-height: 1.3;
+}
+.sidebar .brand-sub {
+  font-size: 8px;
+  letter-spacing: 1.2px;
+  line-height: 1.6;
+  color: #c0d1e4;
+}
+.company-label {
+  font-size: 11px;
+  letter-spacing: 1px;
+  font-weight: 650;
+  color: #4e739a;
+  margin-bottom: 11px;
+}
+header .company-slogan {
+  font-size: 14px;
+  font-style: italic;
+  color: #5d7895;
+  margin-top: 8px;
+}
+@media (max-width: 760px) {
+  .company-label {
+    font-size: 10px;
+    letter-spacing: 0.7px;
+  }
+  header .company-slogan {
+    font-size: 13px;
+  }
+}
+/* Steckenpferd: warm charcoal and gold from the supplied brand reference. */
+:root {
+  color: #34362d;
+  background: #f7f6f2;
+  --brand-gold: #d1b980;
+  --brand-charcoal: #1c1d18;
+}
+.sidebar {
+  background: var(--brand-charcoal);
+}
+.sidebar .brand-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: center;
+  padding: 0;
+  font-size: inherit;
+}
+.brand-logo img {
+  display: block;
+  width: 180px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+.logo-slogan {
+  font-size: 10px;
+  font-style: italic;
+  color: #d3bf91;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+}
+.sidebar .nav {
+  color: #bcbcac;
+}
+.sidebar .nav.active {
+  background: #3b392d;
+  color: #f1deb5;
+}
+.nav-heading {
+  color: #a49777;
+}
+.nav b {
+  background: #d1b980;
+  color: #29291f;
+}
+.sidebar-bottom,
+.sidebar-bottom small {
+  color: #a9a58f;
+}
+.dot {
+  background: #d1b980;
+}
+.primary {
+  background: #c8ad72;
+  border-color: #c8ad72;
+  color: #24251e;
+}
+.primary:hover {
+  background: #b99b5d;
+  border-color: #b99b5d;
+}
+.company-label {
+  color: #8b774f;
+}
+.eyebrow {
+  color: #9c927c;
+}
+header .company-slogan {
+  color: #8c7852;
+}
+.brand-heading {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-width: 0;
+}
+.header-emblem {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+.stats strong,
+.stats article:nth-child(4) strong,
+.big-number {
+  color: #8b7547;
+}
+.stats article:nth-child(3) {
+  background: #f1eddf;
+}
+.calendar-day.selected {
+  background: #f6f0df;
+  box-shadow: inset 0 0 0 2px #c4a76b;
+}
+.calendar-day.is-today strong {
+  background: #8b7547;
+}
+.calendar-chip {
+  background: #f1ebdb;
+  border-left-color: #b79b60;
+}
+.calendar-weekdays span {
+  background: #f9f7f0;
+  color: #97896e;
+}
+.editor-tabs [aria-selected="true"] {
+  background: #f4efdf;
+  border-color: #b49a65;
+  color: #8c7545;
+}
+.menu-toggle {
+  background: var(--brand-charcoal);
+}
+.priority-line,
+.visit-label {
+  color: #978056;
+}
+.quick-actions button {
+  background: #f8f5eb;
+  color: #8b774f;
+  border-color: #e4dbc4;
+}
+.quick-actions button:hover {
+  background: #eee4ce;
+}
+progress::-webkit-progress-value {
+  background: #bba16a;
+}
+progress::-moz-progress-bar {
+  background: #bba16a;
+}
+@media (max-width: 760px) {
+  .brand-heading {
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .header-emblem {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+  }
+  .brand-heading > div {
+    min-width: 0;
+  }
+  .brand-heading .company-label {
+    font-size: 9px;
+    letter-spacing: 0.3px;
+  }
+  .brand-heading h1 {
+    font-size: 27px;
+  }
+  .brand-heading .company-slogan {
+    font-size: 12px;
+  }
+  .sidebar .brand-logo {
+    padding: 0;
+  }
+  .brand-logo img {
+    width: 164px;
+  }
+}

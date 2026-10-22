@@ -260,6 +260,8 @@ const server = http.createServer(async (req, res) => {
     };
     for (const name of ["workspace.js", "model.js"])
       files["/" + name] = [name, "text/javascript"];
+    for (const name of ["steckenpferd-logo.png", "steckenpferd-icon.png"])
+      files["/brand/" + name] = ["brand/" + name, "image/png"];
     const vendor = url.pathname.match(
       /^\/vendor\/leaflet\/(leaflet\.(js|css)|images\/(marker-icon(?:-2x)?|marker-shadow|layers(?:-2x)?)\.png)$/,
     );

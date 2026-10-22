@@ -1,4 +1,4 @@
-const CACHE = "akquise-phone-v3-brand-1";
+const CACHE = "akquise-phone-v3-brand-2";
 const FILES = [
   "./phone.html",
   "./app.js",
@@ -7,6 +7,8 @@ const FILES = [
   "./style.css",
   "./phone.webmanifest",
   "./icon.svg",
+  "./brand/steckenpferd-logo.png",
+  "./brand/steckenpferd-icon.png",
   "./vendor/leaflet/leaflet.js",
   "./vendor/leaflet/leaflet.css",
 ];
