@@ -1,4 +1,4 @@
-const CACHE = "akquise-phone-v3-brand-2";
+const CACHE = "akquise-phone-v3-gold-3";
 const FILES = [
   "./phone.html",
   "./app.js",

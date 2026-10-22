@@ -27,7 +27,7 @@ Im iPhone-Modus steht oben „Daten nur auf diesem Gerät“. Ein Server und Nod
 - **Gebietskarte** startet in Hannover; verschieben und zoomen ist möglich.
 - Ein Kartenklick legt ein neues Objekt an der angeklickten Position an. Das Objekt benennen und speichern.
 - Bestehende Objekte: unter **Objekt → Position auf der Karte → Adresse suchen** den passenden Treffer auswählen und speichern. Nur diese ausdrücklich gestartete Suche sendet die Adresse an OpenStreetMap/Nominatim; keine automatische Massensuche.
-- Farben: blau = nicht besucht, grün = besucht, orange = niemand angetroffen / erneut besuchen.
+- Markierungen in Unternehmensfarben: Anthrazit = nicht besucht, Gold = besucht, Creme mit gestricheltem Goldrand = niemand angetroffen / erneut besuchen. Die Basiskarte ist dezent entsättigt.
 - Nur erfasste Objekte besitzen einen Status. Unmarkierte Gebäude sind nicht automatisch „unbesucht“; es gibt keine vollständige Gebäudedatenbank.
 - **Besuche & Aktivitäten** enthält Besuchsdatum und Aktivitäten wie „Nachbar getroffen“ und „Information erhalten“. Aktivität vormerken und anschließend das Objekt speichern.
 - „In Google Maps öffnen“ bietet die Navigation/Ansicht eines einzelnen Standorts. Die eingebaute Karte stammt von OpenStreetMap, nicht von Google. Für eine eingebettete Google-Karte wäre ein eigenes freigeschaltetes Google-Maps-Projekt nötig.

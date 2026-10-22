@@ -507,13 +507,16 @@ function renderMap(list) {
     const status = p.visitStatus || "Nicht besucht";
     const color =
       status === "Besucht"
-        ? "#228769"
+        ? "#d1b980"
         : status === "Nicht besucht"
-          ? "#457bad"
-          : "#d39331";
+          ? "#1c1d18"
+          : "#fffdf7";
     const marker = L.circleMarker([Number(p.lat), Number(p.lng)], {
       radius: 10,
-      color: "#fff",
+      color: status === "Nicht besucht" ? "#d1b980" : "#78613a",
+      dashArray: !["Besucht", "Nicht besucht"].includes(status)
+        ? "3 3"
+        : undefined,
       weight: 3,
       fillColor: color,
       fillOpacity: 1,
