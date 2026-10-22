@@ -1,11 +1,17 @@
 {
-  "name": "Meine Immobilienakquise",
-  "short_name": "Akquise",
+  "name": "Steckenpferd Immobilien · Akquise",
+  "short_name": "Steckenpferd",
   "lang": "de",
   "start_url": "./phone.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f4f6f9",
   "theme_color": "#243e60",
-  "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
 }
