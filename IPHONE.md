@@ -33,3 +33,13 @@ Im iPhone-Modus steht oben „Daten nur auf diesem Gerät“. Ein Server und Nod
 - „In Google Maps öffnen“ bietet die Navigation/Ansicht eines einzelnen Standorts. Die eingebaute Karte stammt von OpenStreetMap, nicht von Google. Für eine eingebettete Google-Karte wäre ein eigenes freigeschaltetes Google-Maps-Projekt nötig.
 
 Leaflet ist lokal mitgeliefert (BSD-2-Clause-Lizenz unter public/vendor/leaflet/LICENSE). Die Karten werden direkt von OpenStreetMap geladen; kein Offline-Download von Kartenkacheln. Kartenanbieter erhalten bei Nutzung übliche Verbindungs-/Kartenausschnittdaten.
+
+## Kalender und neue Seitennavigation
+
+Über **☰** erreichst du Kalender, Tagesroute, Aktivitäten, Gebiete, Auswertung und Datensicherung. Der Kalender speichert freie Termine/Aufgaben mit Uhrzeit, Notizen und optionalem Objektbezug; offene Wiedervorlagen werden mit angezeigt. Kalenderdaten funktionieren im Gerätemodus offline. „Kalender exportieren“ erstellt eine ICS-Datei für den manuellen Import in Apple Kalender – keine automatische Synchronisierung und keine Sperrbildschirm-Erinnerungen.
+
+Im Objekt unter **Fotos & Dateien** lassen sich weitere Fotos, PDF-/Textdateien und Audio ergänzen. „Sprachnotiz aufnehmen“ benötigt deine Mikrofonfreigabe und eine unterstützte HTTPS-Browserumgebung. Nach Aufnahme oder Dateiauswahl immer **Objekt speichern**. Sprachaufnahme speichert Audio, transkribiert nicht automatisch.
+
+Unter **Datensicherung** stehen die letzten fünf lokalen Datenstände zum Download bereit. Zusätzlich regelmäßig eine aktuelle Sicherung einschließlich Kalender in Dateien/iCloud Drive ablegen. Die automatischen Kopien sind auf demselben Gerät und ersetzen keine externe Sicherung. Ein Import fügt Einträge hinzu und kann Duplikate erzeugen; er ersetzt vorhandene Daten nicht. Ein geräteübergreifender Abgleich ist nicht eingerichtet.
+
+Nach einer veröffentlichten Aktualisierung die App bei bestehender Internetverbindung vollständig schließen und neu öffnen. Falls noch die alte Oberfläche erscheint, einmal in Safari neu laden; keine Website-Daten löschen, da darin die Objekte liegen. Ein Datenbank-Upgrade erhält vorhandene Objekte; falls die App darum bittet, andere geöffnete Akquise-Fenster schließen.
